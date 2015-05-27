@@ -15,12 +15,16 @@ var ctlpath = '/tmp/' + process.getuid() + '-hackvcr.sock';
 var ctl = net.createServer(function(con) {
 	console.log('Client connected.');
 	
+	var client = {};
+	client.version = null;
+	client.capability.editor.file = false;
+	// Connection mode, e.g. file, diff, screenshot, etc.
+	var mode = 'HANDSHAKE';
+	
 	// Data recieved from the stream
 	var cmdBuf = '';
 	// Data that's been processed from cmdBuf
 	var processedCmdBuf = '';
-	// Connection mode, e.g. file, diff, screenshot, etc.
-	var mode = null;
 	
 	con.on('end', function() {
 		console.log('Client disconnected.');
@@ -39,7 +43,26 @@ var ctl = net.createServer(function(con) {
 		
 		// Split by newlines, then strip empty indexes
 		var cmdBufArr = cmdBuf.split('\n').filter(function(i) {return i != '';});
+		
 		for (var i in cmdBufArr) {
+			if (mode === 'HANDSHAKE') {
+				var handshakeCmd = cmdBufArr[i];
+				if (handshakeCmd !== 'VERSION'
+				    || handshakeCmd !== 'CAPABILITY'
+				    || handshakeCmd !== 'END'
+				   ) {
+					   handshakeCmd = handshakeCmd.split(' ');
+					   // Client's command was legal during handshake
+					   if (handshakeCmd.startsWith('VERSION') {
+						   client.version = handshakeCmd[1];
+					   } else if (handshakeCmd.startsWith
+				   } else {
+					   // Client's command was forbidden before handshake
+					   con.write('ERROR\n');
+					   break;
+				   }
+			}
+			
 			if (cmdBufArr[i] === 'END') {
 				if (mode === 'FILE') {
 					// TODO: this should be JSON or somesuch
