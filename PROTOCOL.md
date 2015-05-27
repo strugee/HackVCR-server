@@ -45,6 +45,16 @@ Until the client performs the handshake, the only commands available to it are `
 
 The presence of certain capabilities may also imply additional available commands.
 
+## Modes
+
+The client is responsible for keeping track of the mode. Because of the way the protocol is designed, there is no way to query the server for what the connection mode is.
+
+`HANDSHAKE`: The connection is in this mode when the initial handshake is taking place.
+
+`FILE`: The connection is in this mode when it is expecting a complete file over the data stream.
+
+No mode: The connection has no mode when the client has called `END` but has not yet sent another command to reset the mode. Data is forbidden when the connection has no mode.
+
 ## Capabilities
 
 `EDITOR_FILE`: the ability to send and receive entire files.
